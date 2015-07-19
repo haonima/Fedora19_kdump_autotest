@@ -1,0 +1,11 @@
+#!/bin/bash
+FTEST=/usr/bin/ftest
+
+case "$1" in 
+    start)
+          $FTEST
+
+          ;;
+    *)
+          echo $"Usage: $0 {start|stop|status|restart}"
+esac

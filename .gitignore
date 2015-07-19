@@ -1,0 +1,8 @@
+*.vi
+*.vim
+*~
+*.pyc
+test.py
+test.pyc
+*.wpr
+*.wpu

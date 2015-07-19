@@ -1,0 +1,79 @@
+本程序主函数调用其他函数进行。主函数负责控制。
+其他函数分为两类：设置触发崩溃方式、设置存储方式。
+触发崩溃方式的函数返回相关命令，
+存储方式的函数负责修改kdump.conf文件，
+最终在主控制函数中执行命令，程序就会按照需要的触发方式、需要的存储方式及位置进行触发。
+需要设置一个用户设置的文件，用户将需要的触发方式、存储方式填进去后，即可无需每次都进来设置。
+
+控制类：
+初始化函数init()：
+初始化环境，主要对kdump.conf文件进行初始化，最好可以通过导入某个包中的所有文件来实现用户自定义功能。比如：建立一个包,用户可以根据格式自己开发py文件，开发完成后，将里面__init__.py进行修改，在列表中加入自己文件的名字，即可使用。
+
+用户设置函数setting():
+负责读取用户的设置文件。读取后用户无需手动输入各种方式，实现真正的自动化测试。
+
+触发函数类：
+sysrq-c函数sysrqc():
+
+nmi函数nmi():
+
+
+
+存储类函数：
+raw设备存储raw():
+
+ssh方式存储ssh():
+
+nfs方式存储nfs():
+
+本地存储localfs():
+
+
+例：
+import sys
+from crashfunc import *
+from storefunc import * 
+
+
+def init():
+    pass
+    return True
+
+def setting():
+    pass
+    return True
+
+if __name__ =='__main__':
+    arg1 = {'init':init,'set':setting}
+    arg2 = {}
+    if len(sys.argv) == 1:
+        print 'usage:ftest arg1 arg2'
+
+    exe = arg1.get(sys.argv[1])
+
+    
+    
+    
+设计方案0902:
+envtest(detectsoftware/detectcmdline)
+（将ftest服务enable）
+重启(1)
+
+config()
+
+读取ftest.conf文件，得到kdump信息
+配置kdump.conf文件（记得把记录文件夹，即path设置为固定文件夹，方便查找。最好以本机ip为名字）
+起kdump服务，并将其设为enable
+
+再次查找ftest.conf，记录crash方案
+
+执行crash（相当于重启(1)）
+
+ana()
+获取vmcore（本机／远程）
+分析
+
+systemctl disable ftest.service
+
+另外：
+输入 ftest clear的时候，即删除相应标记，用户可以从头开始下一轮测试

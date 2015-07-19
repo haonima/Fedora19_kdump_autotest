@@ -1,0 +1,109 @@
+#!/usr/bin/python
+import sys
+sys.path.append('/usr/local/ftest')
+from crashclasses import *
+from storefunc import *
+import commands
+from exception import *
+import envtest
+import time
+import os
+import rebootctl
+import servicectl
+import conf
+import analysis
+from output import serial_print
+
+def onboot():
+    return rebootctl.detect()
+
+def sys_conf():
+    e = envtest.env()
+    e.detectSoftware()
+    r = e.detectCmdline()
+    if r==1:
+        rebootctl.reboot(1)
+    else:
+        rebootctl.mark()
+        conf_and_crash()
+
+def conf_and_crash():
+    c=conf.conf()
+    c.kdumpConf()
+    k=servicectl.serviceCtl('kdump')
+    #k.enable()
+    if c.getStoreStyle()[0]=='nfs':
+        ip=c.getStoreStyle()[1]
+        rdir=c.getStorePath()
+        nfs.mountnfs(ip,rdir)
+        
+    print 'starting kdump service...'
+    k.restart()
+    print 'done'
+    
+    cs=c.getCrashStyle()
+    cra=eval(cs+'.'+cs+'()')
+    
+    rebootctl.mark()
+    
+    print 'waiting for crash...'
+    time.sleep(30)
+    
+    cra.crash()
+
+def collect_and_analysis():
+    s=servicectl.serviceCtl('ftest')
+    s.disable()
+    #s.stop()
+    c=conf.conf()
+    
+    analysis.get_vmcore(c.getStoreStyle())
+    vmliux = c.getVmlinux()
+    a=analysis.analysis(vmliux)
+    a.analysis()
+    a.log_wash()
+    rebootctl.mark()
+    commands.getstatusoutput('echo > /dev/ttyS1; echo "ftest done!">/dev/ttyS1; echo "you could see the vmcores and logs in results dir in ftest home">/dev/ttyS1')
+    
+    
+def last():
+    print 'ftest has finished, you could see the results in $ftesthome/results'
+    print 'or you could run  "ftest clear" to have another test'
+
+if __name__ =='__main__':
+    st={0:sys_conf,1:conf_and_crash,2:collect_and_analysis,3:last}
+    
+    try:
+        s=servicectl.serviceCtl('ftest')
+        s.enable()
+        
+        if len(sys.argv)==2:
+            if sys.argv[1]=='clear':
+                rebootctl.unmarkall()
+                cmd='umount /mnt/ftest'
+                status = commands.getstatusoutput(cmd)
+                if status[0]==0:
+                    print 'nfs unmounted '
+        elif len(sys.argv)==1:
+            step=rebootctl.detect()
+            s=st.get(step)
+            s()
+        else:
+            print 'usage: ftest [clear]'
+        
+    except conffileException,e:
+        serial_print(e.msg)
+        print e.msg
+        exit()
+    except notInstallException,e:
+        serial_print(e.msg)
+        print e.msg
+        exit()
+    except remoteServerException,e:
+        serial_print(e.msg)
+        print e.msg
+        exit()
+    except commandFailException,e:
+        serial_print(e.msg)
+        print e.msg
+        exit()

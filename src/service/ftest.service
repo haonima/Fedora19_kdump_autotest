@@ -1,0 +1,12 @@
+[Unit]
+Description=ftest
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ftestctl start
+ExecStop=/usr/bin/echo 'stop' 
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

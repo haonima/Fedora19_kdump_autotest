@@ -1,0 +1,22 @@
+file list:
+ftest.py	main program. including functions:
+		testenv(): call envtest.py
+		init(): rename the existed kdump.conf to kdump.conf.(time_now)
+				make new kdump.conf 
+				read the data from ftest.conf and write related configuration to kdump.conf
+				call functions in storefunc/ which could test the environment(such as nfs network)
+				return the crash type
+		warn(): ask the user if they are ready to call the crash.
+		exe(fun): execute the crash, fun is the parameter that init() returned, it is from files located in crashfunc/.
+conf.py		read the ftest.conf, call functions in 'storefunc/' packages to test the network, etc, and finally return the detailed configuration
+exception.py	customize the exception types
+envtest.py	test if the necessary software(kexec-tools, kernel-debuginfo, crash) are installed
+crashfunc:	package that contains the specific crash style
+	__init__.py		necessary file that a package should have
+	sysrqc.py		the way crashed by sysrq-c 
+storefunc:	package that contain the specific store style
+	__init__.py		necessare file that a package should have
+	nfs.py			the way stored by nfs
+	ssh.py			the way stored by ssh
+service:	folders that include necessary services
+    ftest.service   this service ensure the program could continue after rebooting , this should be placed in /usr/lib/systemd/system/
