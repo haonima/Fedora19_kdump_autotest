@@ -1,4 +1,5 @@
 import os
+import sys
 from crashBase import crashBase
 
 class sysrqc(crashBase):
@@ -6,4 +7,5 @@ class sysrqc(crashBase):
         crashBase.__init__(self)
     def crash(self):
         print 'sysrqc'
-        os.system('echo c > /proc/sysrq-trigger')
+        sys.stdout = open('/proc/sysrq-trigger')
+        print 'c'
