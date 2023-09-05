@@ -1,8 +1,8 @@
-###简介：
+# 简介：
 
 Fedora19_kdump_autotest是一款针对Fedora 19 Kdump的自动化测试套件，可以支持在Fedora 19上面对Kdump的自动化测试。
 
-###安装使用： 
+# 安装使用： 
 
 1. 进入目录后，使用命令`python setup.py`进行安装。安装位置为`/usr/local/ftest`
 2. 安装后，需要进入`/usr/local/ftest/ftest.conf.d/ftest.conf`进行配置，选择系统crash方式、vmlinux位置以及kdump选项。
@@ -12,7 +12,7 @@ Fedora19_kdump_autotest是一款针对Fedora 19 Kdump的自动化测试套件，
 6. 每次测试后会覆盖掉前一次测试得到的结果，所以进行测试时请确认已经保存好之前的结果。
 
 
-###注意事项：
+# 注意事项：
 
 1. 如果需要串口输出，则需要在安装之前设置串口，具体方式为在启动参数之后加
 `console=ttyS1,115200k`
@@ -22,6 +22,6 @@ Fedora19_kdump_autotest是一款针对Fedora 19 Kdump的自动化测试套件，
 
 
 
-###接下来的工作：
+# 接下来的工作：
 
 添加自定义串口、重写输出类，将所有输出重新写到串口及log，完成本地的存储方式（local，包括raw和本地）
